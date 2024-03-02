@@ -31,7 +31,8 @@ export type DictionaryResource = {
   category: string
   tags: string[]
   url: string
-  length: number
+  // 插件里的length是动态计算的，可以不加
+  length?: number
   language: LanguageType
   languageCategory: LanguageCategoryType
   //override default pronunciation when not undefined

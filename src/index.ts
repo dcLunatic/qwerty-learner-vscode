@@ -1,4 +1,4 @@
-import { dictionaries } from './resource/dictionary'
+import { dictionaries, reloadExternalDict } from './resource/dictionary'
 import { DictPickItem } from './typings/index'
 import * as vscode from 'vscode'
 import { range } from 'lodash'
@@ -12,10 +12,17 @@ const PREV_WORD_COMMAND = 'qwerty-learner.prevWord'
 const NEXT_WORD_COMMAND = 'qwerty-learner.nextWord'
 const TOGGLE_TRANSLATION_COMMAND = 'qwerty-learner.toggleTranslation'
 const TOGGLE_DIC_NAME_COMMAND = 'qwerty-learner.toggleDicName'
-
 export function activate(context: vscode.ExtensionContext) {
-  const pluginState = new PluginState(context)
+  return new Promise<void>(async (resolve, reject) => {
+    reloadExternalDict()
+    await activate2(context)
+    resolve();
+  });
+}
 
+async function activate2(context: vscode.ExtensionContext) {
+  const pluginState = new PluginState(context)
+  await pluginState.init()
   const wordBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -100)
   const inputBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -101)
   const playVoiceBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -102)
@@ -93,6 +100,10 @@ export function activate(context: vscode.ExtensionContext) {
       pluginState.chapterLength = getConfig('chapterLength')
       initializeBar()
     }
+
+    if (event.affectsConfiguration('qwerty-learner.externalDictList')) {
+      reloadExternalDict()
+    }
   })
 
   // 注册 vscode commands
@@ -131,6 +142,10 @@ export function activate(context: vscode.ExtensionContext) {
           initializeBar()
         }
       }),
+      vscode.commands.registerCommand('qwerty-learner.reloadDict', async () => {
+        await pluginState.reloadDict()
+        initializeBar()
+      }),
       vscode.commands.registerCommand('qwerty-learner.changeDict', async () => {
         const dictList: DictPickItem[] = []
         dictionaries.forEach((dict) => {
@@ -138,7 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
         })
         const inputDict = await vscode.window.showQuickPick(dictList, { placeHolder: `当前字典: ${pluginState.dict.name}` })
         if (inputDict !== undefined) {
-          pluginState.dictKey = inputDict.key
+          await pluginState.changeDict(inputDict.key)
           initializeBar()
         }
       }),
@@ -189,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
     setUpInputBar()
   }
   function playVoice() {
-    if (pluginState.shouldPlayVoice) {
+    if (pluginState.isStart && pluginState.shouldPlayVoice) {
       pluginState.voiceLock = true
       voicePlayer(pluginState.currentWord.name, () => {
         pluginState.voiceLock = false

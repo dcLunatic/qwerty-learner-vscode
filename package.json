@@ -55,6 +55,10 @@
         "title": "Qwerty Learner Change Chapter"
       },
       {
+        "command": "qwerty-learner.reloadDict",
+        "title": "Qwerty Learner Reload Dictionary(if necessary)"
+      },
+      {
         "command": "qwerty-learner.changeDict",
         "title": "Qwerty Learner Change Dictionary"
       },
@@ -157,6 +161,68 @@
           "type": "boolean",
           "default": false,
           "description": "是否章节内单词顺序随机"
+        },
+        "qwerty-learner.externalDictList": {
+          "type": "array",
+          "description": "额外的字典定义",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Dictionary ID"
+              },
+              "name": {
+                "type": "string",
+                "description": "Dictionary name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Dictionary description"
+              },
+              "category": {
+                "type": "string",
+                "description": "Dictionary category"
+              },
+              "tags": {
+                "type": "array",
+                "description": "Dictionary tags",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "url": {
+                "type": "string",
+                "description": "Dictionary URL"
+              },
+              "length": {
+                "type": "number",
+                "description": "Dictionary length"
+              },
+              "language": {
+                "type": "string",
+                "description": "Dictionary language"
+              },
+              "languageCategory": {
+                "type": "string",
+                "description": "Dictionary language category"
+              },
+              "defaultPronIndex": {
+                "type": "number",
+                "description": "Override default pronunciation index when not undefined"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "category",
+              "tags",
+              "url",
+              "language",
+              "languageCategory"
+            ]
+          }
         }
       }
     }
@@ -173,6 +239,7 @@
     "vscode-test": "^1.5.0"
   },
   "dependencies": {
+    "axios": "^1.6.7",
     "lodash": "^4.17.21",
     "node-loader": "^2.0.0",
     "node-wav-player": "^0.2.0",

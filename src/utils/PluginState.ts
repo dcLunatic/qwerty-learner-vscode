@@ -46,7 +46,6 @@ export default class PluginState {
     this.dict = idDictionaryMap[this._dictKey]
     this.dictWords = []
     this.hideDictName = false
-    this.loadDict()
 
     this._order = globalState.get('order', 0)
     this._chapter = globalState.get('chapter', 0)
@@ -92,24 +91,25 @@ export default class PluginState {
     this._globalState.update('order', this._order)
   }
 
-  get dictKey(): string {
-    return this._dictKey
-  }
-  set dictKey(value: string) {
+  async changeDict(newDictKey: string): Promise<void> {
     this.order = 0
     this.currentExerciseCount = 0
     this.chapter = 0
-    this._dictKey = value
+    this._dictKey = newDictKey
     this.dict = idDictionaryMap[this._dictKey]
     this._globalState.update('dictKey', this._dictKey)
-    this.loadDict()
+    await this.loadDict()
+  }
+
+  async reloadDict(): Promise<void> {
+    await this.changeDict(this._dictKey)
   }
 
   get wordExerciseTime(): number {
     return getConfig('wordExerciseTime')
   }
   get wordList(): Word[] {
-    if (this._wordList.wordList.length > 0 && this._wordList.dictKey === this.dictKey && this._wordList.chapter === this.chapter) {
+    if (this._wordList.wordList.length > 0 && this._wordList.dictKey === this._dictKey && this._wordList.chapter === this.chapter) {
       return this._wordList.wordList
     } else {
       let wordList = this.dictWords.slice(this.chapter * this.chapterLength, (this.chapter + 1) * this.chapterLength)
@@ -126,7 +126,7 @@ export default class PluginState {
       this._wordList = {
         wordList,
         chapter: this.chapter,
-        dictKey: this.dictKey,
+        dictKey: this._dictKey,
       }
 
       return wordList
@@ -285,7 +285,12 @@ export default class PluginState {
     return phonetic
   }
 
-  private loadDict() {
-    this.dictWords = getDictFile(this.dict.url)
+  private async loadDict() {
+    this.dictWords = await getDictFile(this.dict.url)
   }
+
+  async init() {
+    await this.loadDict()
+  }
+
 }

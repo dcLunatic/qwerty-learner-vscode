@@ -1,4 +1,5 @@
 import { DictionaryResource } from '@/typings'
+import { getConfig } from '../utils'
 
 // 使用与网页版 qwerty 一样的格式，方便共享数据
 // 中国考试
@@ -15,7 +16,7 @@ const chinaExam: DictionaryResource[] = [
     languageCategory: 'en',
   },
   {
-    id: 'cet6',
+    id: 'cet42222',
     name: 'CET-6',
     description: '大学英语六级词库',
     category: '中国考试',
@@ -2030,11 +2031,13 @@ const germanExam: DictionaryResource[] = [
   },
 ]
 
+
+
 /**
  * Built-in dictionaries in an array.
  * Why arrays? Because it keeps the order across browsers.
  */
-export const dictionaries: DictionaryResource[] = [
+export var dictionaries: DictionaryResource[] = [
   ...chinaExam,
   ...internationalExam,
   ...childrenEnglish,
@@ -2046,4 +2049,19 @@ export const dictionaries: DictionaryResource[] = [
 /**
  * An object-map from dictionary IDs to dictionary themselves.
  */
-export const idDictionaryMap: Record<string, DictionaryResource> = Object.fromEntries(dictionaries.map((dict) => [dict.id, dict]))
+export var idDictionaryMap: Record<string, DictionaryResource> = Object.fromEntries(dictionaries.map((dict) => [dict.id, dict]))
+
+
+export function reloadExternalDict() {
+  const externalDictList: DictionaryResource[] = getConfig("externalDictList")
+  dictionaries = [
+    ...chinaExam,
+    ...internationalExam,
+    ...childrenEnglish,
+    ...programming,
+    ...japaneseExam,
+    ...germanExam,
+    ...(externalDictList?externalDictList:[]),
+  ]
+  idDictionaryMap = Object.fromEntries(dictionaries.map((dict) => [dict.id, dict]))
+}
