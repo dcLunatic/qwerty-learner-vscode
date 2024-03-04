@@ -44,6 +44,10 @@ export default class PluginState {
 
     this._dictKey = globalState.get('dictKey', 'cet4')
     this.dict = idDictionaryMap[this._dictKey]
+    if (this.dict === undefined) {
+      this._dictKey = 'cet4'
+      this.dict = idDictionaryMap[this._dictKey]
+    }
     this.dictWords = []
     this.hideDictName = false
 
