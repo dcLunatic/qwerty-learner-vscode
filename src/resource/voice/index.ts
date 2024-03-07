@@ -1,5 +1,6 @@
 import { VoiceType } from './../../typings/index'
 import { getConfig } from '../../utils'
+import axios from 'axios'
 interface NativeModule {
   playerPlay(voiceUrl: string, callback: () => void): void
 }
@@ -37,11 +38,80 @@ if (!(NATIVE && NATIVE.playerPlay)) {
   NATIVE = null
 }
 
+type PhoneCallback = (ukphone: string|undefined, usphone: string|undefined) => void
+
+function getMp3ByDictCn(word: string, callback: PhoneCallback) {
+  axios.get(`https://dict.cn/search?q=${word}`).then((res) => {
+    if (res.status !== 200) {
+      callback(undefined, undefined)
+      return
+    }
+    const regex = /<i class="sound fsound" naudio="([^"]+)"/g;  // 女声
+    // const regex = /<i class="sound" naudio="([^"]+)"/g;  // 男声
+  
+    const matches = [];
+    let match;
+  
+    while ((match = regex.exec(res.data)) !== null) {
+        matches.push(match[1]);
+    }
+    if (matches.length >= 2) {
+        callback('https://audio.dict.cn/' + matches[0], 'https://audio.dict.cn/' + matches[1]) // 英式在第一二个位置，美式在第三四个位置
+    } else {
+        callback(undefined, undefined)
+    }
+  }).catch((err) => {
+    console.error(err)
+    callback(undefined, undefined)
+  })
+}
+
+function getMp3ByYoudao(word: string, callback: PhoneCallback) {
+  const ukphone = `https://dict.youdao.com/dictvoice?audio=${word}&type=1`
+  const usphone = `https://dict.youdao.com/dictvoice?audio=${word}&type=2`
+  callback(ukphone, usphone)
+}
+
+// 金山词霸
+function getMp3ByIciba(word: string, callback: PhoneCallback) {
+  const url = `https://www.iciba.com/word?w=${word}`
+  axios.get(url).then((res) => {
+    const regex = /"ph_en_mp3_bk":"(.*?)","ph_am_mp3_bk":"(.*?)"/;
+    const match = res.data.match(regex);
+    if (match) {
+      callback(match[2], match[1])
+    } else {
+        callback(undefined, undefined)
+    }
+  }).catch((err) => {
+    console.error(err)
+    callback(undefined, undefined)
+  })
+}
+
+function getMp3ByOxford(word: string, callback: PhoneCallback) {
+  const ukphone = `https://ssl.gstatic.com/dictionary/static/sounds/oxford/${word}--_gb_1.mp3`
+  const usphone = `https://ssl.gstatic.com/dictionary/static/sounds/oxford/${word}--_us_1.mp3`
+  callback(ukphone, usphone)
+}
+
+const voiceSourceFuncMap: Record<string, (word: string, callback: PhoneCallback) => void> = {
+  "金山词霸": getMp3ByIciba,
+  "牛津词典": getMp3ByOxford,
+  "有道词典": getMp3ByYoudao,
+  "海词词典": getMp3ByDictCn,
+}
+
+
 export const voicePlayer = (word: string, callback: () => void) => {
-  if (NATIVE) {
-    const type = getConfig('voiceType') === 'us' ? 2 : 1
-    NATIVE.playerPlay(`https://dict.youdao.com/dictvoice?audio=${word}&type=${type}`, callback)
-  } else {
-    callback()
-  }
+  const voiceSource = getConfig('voiceSource')
+  const func = voiceSourceFuncMap[voiceSource]
+  func(word, (ukphone, usphone)=>{
+    if (NATIVE) {
+      const url = getConfig('voiceType') === 'uk' ? ukphone : usphone;
+      NATIVE.playerPlay(url, callback)
+    } else {
+      callback()
+    }
+  })
 }
