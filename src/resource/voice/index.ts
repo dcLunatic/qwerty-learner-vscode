@@ -90,10 +90,11 @@ function getMp3ByIciba(word: string, callback: PhoneCallback) {
 }
 
 function getMp3ByOxford(word: string, callback: PhoneCallback) {
-  const url = `https://www.oxfordlearnersdictionaries.com/definition/english/${word}`
+  // const url = `https://www.oxfordlearnersdictionaries.com/definition/english/${word}`
+  const url = `https://www.oxfordlearnersdictionaries.com/definition/english/belongings`
   const headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'}
   axios.get(url, { headers }).then((res) => {
-    const regex = /data-src-mp3="(.*?gb_1.mp3)"[\s\S]*?data-src-mp3="(.*?us_1.mp3)"/;
+    const regex = /data-src-mp3="(.*?gb_..mp3)"[\s\S]*?data-src-mp3="(.*?us_..mp3)"/;
     const match = res.data.match(regex);
     if (match) {
       callback(match[1], match[2])
