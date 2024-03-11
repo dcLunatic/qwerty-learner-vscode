@@ -144,6 +144,7 @@ async function activate2(context: vscode.ExtensionContext) {
       }),
       vscode.commands.registerCommand('qwerty-learner.reloadDict', async () => {
         await pluginState.reloadDict()
+        vscode.window.showInformationMessage(`Finish reload dictionary. 共计${pluginState.totalWords}个词，${pluginState.totalChapters}章`);
         initializeBar()
       }),
       vscode.commands.registerCommand('qwerty-learner.changeDict', async () => {

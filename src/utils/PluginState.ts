@@ -153,6 +153,10 @@ export default class PluginState {
     }
   }
 
+  get totalWords(): number {
+    return this.dictWords? this.dictWords.length : 0
+  }
+
   get currentWord(): Word {
     return this.wordList[this.order]
   }
