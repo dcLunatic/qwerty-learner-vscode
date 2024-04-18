@@ -7,6 +7,7 @@ import { soundPlayer } from './sound'
 import { voicePlayer } from './resource/voice'
 import PluginState from './utils/PluginState'
 
+const TOGGLE_EVERYTHING_VISIBLILIT_COMMAND = 'qwerty-learner.toggleEverythingVisibility'
 const PLAY_VOICE_COMMAND = 'qwerty-learner.playVoice'
 const PREV_WORD_COMMAND = 'qwerty-learner.prevWord'
 const NEXT_WORD_COMMAND = 'qwerty-learner.nextWord'
@@ -41,6 +42,7 @@ async function activate2(context: vscode.ExtensionContext) {
   translationBar.command = TOGGLE_TRANSLATION_COMMAND
   wordBar.command = TOGGLE_DIC_NAME_COMMAND
   wordBar.tooltip = '隐藏/显示字典名称'
+  var allBarVisible = false
 
   vscode.workspace.onDidChangeTextDocument((e) => {
     if (!pluginState.isStart) {
@@ -113,22 +115,12 @@ async function activate2(context: vscode.ExtensionContext) {
         pluginState.isStart = !pluginState.isStart
         if (pluginState.isStart) {
           initializeBar()
-          wordBar.show()
-          inputBar.show()
-          playVoiceBar.show()
-          prevWord.show()
-          nextWord.show()
-          translationBar.show()
+          showAllBar()
           if (pluginState.readOnlyMode) {
             setUpReadOnlyInterval()
           }
         } else {
-          wordBar.hide()
-          inputBar.hide()
-          playVoiceBar.hide()
-          prevWord.hide()
-          nextWord.hide()
-          translationBar.hide()
+          hideAllBar()
           removeReadOnlyInterval()
         }
       }),
@@ -171,6 +163,15 @@ async function activate2(context: vscode.ExtensionContext) {
         }
       }),
       vscode.commands.registerCommand(PLAY_VOICE_COMMAND, playVoice),
+      vscode.commands.registerCommand(TOGGLE_EVERYTHING_VISIBLILIT_COMMAND, () => {
+        if (pluginState.isStart) {
+          if (allBarVisible) {
+            hideAllBar()
+          } else {
+            showAllBar()
+          }
+        }
+      }),
       vscode.commands.registerCommand(TOGGLE_TRANSLATION_COMMAND, () => {
         pluginState.toggleTranslation()
         initializeBar()
@@ -197,6 +198,24 @@ async function activate2(context: vscode.ExtensionContext) {
       }),
     ],
   )
+  function hideAllBar() {
+    wordBar.hide()
+    inputBar.hide()
+    playVoiceBar.hide()
+    prevWord.hide()
+    nextWord.hide()
+    translationBar.hide()
+    allBarVisible = false
+  }
+  function showAllBar() {
+    wordBar.show()
+    inputBar.show()
+    playVoiceBar.show()
+    prevWord.show()
+    nextWord.show()
+    translationBar.show()
+    allBarVisible = true
+  }
 
   function initializeBar() {
     setUpWordBar()

@@ -73,6 +73,10 @@
       {
         "command": "qwerty-learner.toggleChapterCycleMode",
         "title": "Qwerty Learner Change chapter Cycle Mode"
+      },
+      {
+        "command": "qwerty-learner.toggleEverythingVisibility",
+        "title": "Qwerty Learner Toggle Everything Visibility"
       }
     ],
     "keybindings": [
