@@ -256,9 +256,14 @@
   },
   "dependencies": {
     "axios": "^1.6.7",
+    "debug": "^4.4.0",
+    "install": "^0.13.0",
     "lodash": "^4.17.21",
+    "node-gyp-build": "^4.8.4",
     "node-loader": "^2.0.0",
     "node-wav-player": "^0.2.0",
+    "prettier": ">=1.13.0",
+    "supports-color": "^10.0.0",
     "ts-loader": "^8.0.17",
     "webpack": "^5.21.2",
     "webpack-cli": "^4.5.0"
