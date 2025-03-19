@@ -59,7 +59,6 @@ export const soundPlayer = (type: SoundType) => {
     const file = fs.createReadStream(soundPath);
     const reader = new wav.Reader();
     reader.on('format', (format: WavFormat) => {
-      console.log("Audio format:", format);
       const speaker = new Speaker(format);
       speaker.on('error', (err: any) => console.error("Speaker error:", err));
       reader.pipe(speaker); 
